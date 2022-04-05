@@ -1,52 +1,89 @@
 import json
 import re
-import string
-from timeit import timeit
 import scipy.stats
+# from snowballstemmer import TurkishStemmer
+
+# turk_stemmer = TurkishStemmer()
+
+# from nltk.stem.snowball import SnowballStemmer
+  
+# the stemmer requires a language parameter
+# turk_stemmer = SnowballStemmer(language='turkish')
+
 
 # Chai Square Test
 def calculate_chai_square(word_frequency_matrix, number_of_tokens_in_corpus):
     return number_of_tokens_in_corpus * pow((word_frequency_matrix[0][0] * word_frequency_matrix[1][1]) - (word_frequency_matrix[0][1] * word_frequency_matrix[1][0]), 2) / ((word_frequency_matrix[0][0] + word_frequency_matrix[1][0]) * (word_frequency_matrix[0][1] + word_frequency_matrix[1][1]) * (word_frequency_matrix[0][0] + word_frequency_matrix[0][1]) * (word_frequency_matrix[1][0] + word_frequency_matrix[1][1]))
 
+def construct_frequency_matrix_from_word_map(w1, w2, word_map, number_of_tokens_in_corpus):
+    # [[w1w2, w1!w2], [w1w2!, w1!w2!]]
+    compound_word_count = 0
+    if w2 in word_map[w1][1]:
+        compound_word_count = word_map[w1][1][w2]
+    w1_count = word_map[w1]['count']
+    w2_count = word_map[w2]['count']
+    frequency_matrix = [[compound_word_count, w2_count - compound_word_count],[w1_count - compound_word_count,number_of_tokens_in_corpus + 2 * compound_word_count - w1_count - w2_count]]
+    return frequency_matrix
 
-print('Chai Result', calculate_chai_square([[8, 4667], [15820, 14287181]], 14307668))
+def get_top_ten_for_chai_square(word_map, number_of_tokens_in_corpus):
+    chai_square_list = []
+    for w1 in word_map:
+        for w2 in word_map:
+            if w1 != w2:
+                frequency_matrix = construct_frequency_matrix_from_word_map(w1, w2, word_map, number_of_tokens_in_corpus)
+                chai_square_value = calculate_chai_square(frequency_matrix, number_of_tokens_in_corpus)
+                if chai_square_value != number_of_tokens_in_corpus and chai_square_value > critical_chai_square_value:
+                    chai_square_list.append([w1, w2, chai_square_value])
+    chai_square_list.sort(key=lambda x: x[2], reverse=True)
+    return chai_square_list[:10]
+
 critical_chai_square_value = scipy.stats.chi2.ppf(1-.05, df=1)
-
-f = open ('./1.json', "r")
 
 def clear_punctuations(payload):
     return re.sub(r'[^\w\s]','',payload)
+
+def read_all_data_and_get_payloads():
+    return
+
+def read_json_file_and_get_payload(file_name):
+    with open(file_name, 'r') as f:
+        data = json.load(f)
+    return clear_punctuations(data['ictihat'].strip()).split(' ')
  
-data = json.loads(f.read())
-payload = clear_punctuations(data['ictihat'].strip()).split(' ') # We should remove spaces in the text
+# payload = list(map(turk_stemmer.stemWord, clear_punctuations(data['ictihat'].strip()).split(' '))) # We should remove spaces in the text
+payload = read_json_file_and_get_payload('./1.json')
+number_of_tokens_in_corpus = len(payload)
 
+def getWordMap():
+    word_map = {}
+    gram_count = 5
+    indicator = gram_count // 2
 
-print('Payload', payload)
+    for i in range(indicator, len(payload) - indicator):
+        word = payload[i]
+        if word not in word_map:
+            word_map[word] = {
+                -2: {},
+                -1: {},
+                0: {},
+                1: {},
+                2: {},
+                'count': 0
+            }
+        frequency_map = word_map[word]
+        frequency_map['count'] += 1
+        for j in range(gram_count):
+            gram = payload[i - indicator + j]
+            if gram in frequency_map[-indicator + j]:
+                frequency_map[-indicator + j][gram] += 1
+            else:
+                frequency_map[-indicator + j][gram] = 1
+    return word_map
 
-wordMap = {}
-gramCount = 5
-indicator = gramCount // 2
+word_map = getWordMap()
 
-
-for i in range(indicator, len(payload) - indicator):
-    word = payload[i]
-    if word not in wordMap:
-        wordMap[word] = {
-            -2: {},
-            -1: {},
-            0: {},
-            1: {},
-            2: {},
-        }
-    frequencyMap = wordMap[word]
-    for j in range(gramCount):
-        gram = payload[i - indicator + j]
-        if gram in frequencyMap[-indicator + j]:
-            frequencyMap[-indicator + j][gram] += 1
-        else:
-            frequencyMap[-indicator + j][gram] = 1
-
-# ve = wordMap['ve']
+print(construct_frequency_matrix_from_word_map('yaralama', 'suçundan', word_map, number_of_tokens_in_corpus))
+print(get_top_ten_for_chai_square(word_map, number_of_tokens_in_corpus))
 
 # for i in range(-2, 2):
 #     for gram in ve[i]:
