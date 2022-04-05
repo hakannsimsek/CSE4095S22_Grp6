@@ -61,7 +61,6 @@ def read_some_data_and_get_payloads(path='data', number_of_files=100):
         payloads.append(read_json_file_and_get_payload(join(path, jsonFileName)))
     return payloads
 
-<<<<<<< HEAD
 def read_data_by_day_and_get_payloads(path='data', day='01'):
     jsonFileNames = [f for f in listdir(path) if isfile(join(path, f))]
     payloads = []
@@ -82,12 +81,6 @@ def get_payload(data):
 
 def read_json_file_and_get_payload(file_name):
     return get_payload(read_json_file(file_name))
-=======
-def read_json_file_and_get_payload(file_name):
-    with open(file_name, 'r', encoding="utf-8") as f:
-        data = json.load(f)
-    return clear_punctuations(data['ictihat'].lower().strip()).split(' ')
->>>>>>> 2422efbf639b46fb77aed6977ed0d0f1fc1a6051
  
 # payload = list(map(turk_stemmer.stemWord, clear_punctuations(data['ictihat'].strip()).split(' '))) # We should remove spaces in the text
 # payload = read_json_file_and_get_payload('./1.json')
