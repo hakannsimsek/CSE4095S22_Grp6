@@ -44,7 +44,7 @@ def get_top_ten_for_chai_square(word_map, number_of_tokens_in_corpus):
     return chai_square_list[:10]
 
 def clear_punctuations(payload):
-    return re.sub(r'[^\w\s]','',payload)
+    return re.sub(r'[^\w\s]' ,'' ,payload)
 
 def read_all_data_and_get_payloads(path='data'):
     jsonFileNames = [f for f in listdir(path) if isfile(join(path, f))]
@@ -53,17 +53,33 @@ def read_all_data_and_get_payloads(path='data'):
         payloads.append(read_json_file_and_get_payload(join(path, jsonFileName)))
     return payloads
 
-def read_some_data_and_get_payloads(path='data', number_of_files=10):
+def read_some_data_and_get_payloads(path='data', number_of_files=100):
     jsonFileNames = [f for f in listdir(path) if isfile(join(path, f))]
     payloads = []
     for jsonFileName in jsonFileNames[:number_of_files]:
         payloads.append(read_json_file_and_get_payload(join(path, jsonFileName)))
     return payloads
 
-def read_json_file_and_get_payload(file_name):
-    with open(file_name, 'r') as f:
+def read_data_by_day_and_get_payloads(path='data', day='01'):
+    jsonFileNames = [f for f in listdir(path) if isfile(join(path, f))]
+    payloads = []
+    for jsonFileName in jsonFileNames:
+        data = read_json_file(join(path, jsonFileName))
+        if data['Mahkeme Günü'] == day:
+            payloads.append(get_payload(data))
+    return payloads 
+
+def read_json_file(filename):
+    with open(filename, 'r') as f:
         data = json.load(f)
-    return clear_punctuations(data['ictihat'].strip()).split(' ')
+    return data
+
+def get_payload(data):
+    payload = clear_punctuations(data['ictihat'].lower().strip()).split(' ')
+    return [ele for ele in payload if ele.strip()]
+
+def read_json_file_and_get_payload(file_name):
+    return get_payload(read_json_file(file_name))
  
 # payload = list(map(turk_stemmer.stemWord, clear_punctuations(data['ictihat'].strip()).split(' '))) # We should remove spaces in the text
 # payload = read_json_file_and_get_payload('./1.json')
@@ -101,11 +117,13 @@ number_of_tokens_in_corpus_sum = 0
 
 for payload in payloads:
     number_of_tokens_in_corpus_sum += getWordMap(payload)
-print(number_of_tokens_in_corpus_sum)
+# print(number_of_tokens_in_corpus_sum)
 
 # print(construct_frequency_matrix_from_word_map('yaralama', 'suçundan', word_map, number_of_tokens_in_corpus))
-print(get_top_ten_for_chai_square(word_map, number_of_tokens_in_corpus_sum))
+# print(get_top_ten_for_chai_square(word_map, number_of_tokens_in_corpus_sum))
 
 # for i in range(-2, 2):
 #     for gram in ve[i]:
 #         print(i, gram, ve[i][gram])
+
+print(read_data_by_day_and_get_payloads(day='04')[0])
