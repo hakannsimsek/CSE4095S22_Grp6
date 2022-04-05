@@ -185,37 +185,38 @@ def calculateMean(arr):
     return mean,count
 
 
-countSum = 0
-numberOFPairs = 0
-for key in list_of_dict_values:
-        for i in range(-2, 3):
-            #print("here : " , i, key[0], key[1][i])
-            #if key[0] == "hem":
-            adjacents = key[1][i]
-            if i == 0:
-                continue
-            #if key[0] == "davacı":
-            for pair in adjacents:
-                ##print("key zero ", key[0])
-                mean,stdDev,arr,count = my_function(key, pair)
-                if count > 8 and mean > 0.8 and mean < 1.2 and stdDev < 0.3:
-                    print("\"",key[0],"\"\"", pair,"\"", " mean : ", mean, " std dev : ", stdDev , arr ,count)
-                    countSum += count
-                    numberOFPairs += 1
-                    #print("countSum : ", countSum, " #pairs : ", numberOFPairs)
+def mean_and_variance():
+    countSum = 0
+    numberOFPairs = 0
+    for key in list_of_dict_values:
+            for i in range(-2, 3):
+                #print("here : " , i, key[0], key[1][i])
+                #if key[0] == "hem":
+                adjacents = key[1][i]
+                if i == 0:
+                    continue
+                #if key[0] == "davacı":
+                for pair in adjacents:
+                    ##print("key zero ", key[0])
+                    mean,stdDev,arr,count = my_function(key, pair)
+                    if count > 8 and mean > 0.8 and mean < 1.2 and stdDev < 0.3:
+                        print("\"",key[0],"\"\"", pair,"\"", " mean : ", mean, " std dev : ", stdDev , arr ,count)
+                        countSum += count
+                        numberOFPairs += 1
+                        #print("countSum : ", countSum, " #pairs : ", numberOFPairs)
+    
+    
+                    #print("key zero ", key[0])
+                    if key[0] not in statisticOfWordPairs.keys():
+                        statisticOfWordPairs[key[0]] = []
+                    statisticOfWordPairs[key[0]].append({
+                        0: pair,
+                        1: mean,
+                        2: stdDev,
+                        3: arr
+                    })
+    
+                    #print(i, pair, adjacents[pair])
 
-
-                #print("key zero ", key[0])
-                if key[0] not in statisticOfWordPairs.keys():
-                    statisticOfWordPairs[key[0]] = []
-                statisticOfWordPairs[key[0]].append({
-                    0: pair,
-                    1: mean,
-                    2: stdDev,
-                    3: arr
-                })
-
-                #print(i, pair, adjacents[pair])
-
-print("avg count : ", countSum/numberOFPairs)
-print("")
+# print("avg count : ", countSum/numberOFPairs)
+# print("")
