@@ -128,7 +128,12 @@ for payload in payloads:
 #     for gram in ve[i]:
 #         print(i, gram, ve[i][gram])
 
-print(read_data_by_day_and_get_payloads(day='04')[0])
+def getPlainTextFromPayloads(payloads):
+    flatPayload = [item for sublist in payloads for item in sublist]
+    return ' '.join(flatPayload)
+
+getPlainTextFromPayloads(read_data_by_day_and_get_payloads(day='04'))
+
 list_of_dict_values = list(word_map.items())
 statisticOfWordPairs = {}
 
@@ -204,8 +209,8 @@ def mean_and_variance():
                         countSum += count
                         numberOFPairs += 1
                         #print("countSum : ", countSum, " #pairs : ", numberOFPairs)
-    
-    
+
+
                     #print("key zero ", key[0])
                     if key[0] not in statisticOfWordPairs.keys():
                         statisticOfWordPairs[key[0]] = []
@@ -215,7 +220,7 @@ def mean_and_variance():
                         2: stdDev,
                         3: arr
                     })
-    
+
                     #print(i, pair, adjacents[pair])
 
 # print("avg count : ", countSum/numberOFPairs)
