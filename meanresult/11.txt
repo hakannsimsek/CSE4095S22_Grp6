@@ -1,0 +1,17 @@
+toplanan karar,toplana karar
+geçilmiş hükme,geçil hükme
+yansıtan tutanaklar,yansı tutanak
+alternatif yargılama,alternatif yargıla
+konu yönünden,ko yön
+doğurmaya elverişli,doğurma elverişli
+kanunsuz ceza,kanunsuz ceza
+cezalara ilişkin,ceza ilişk
+uyuşmazlığa uygulanması,uyuşmazlık uygulanmas
+alınabileceğinden bozma,alınabilecek bozma
+suçundan sanığın,suç sanık
+dayandıkları belgelere,dayandık belge
+görevli yargıtay,görevli yargıtay
+iki yıla,ik yıl
+mahkumiyetine hüküm,mahkumiyet hük
+sürdürülüp sonuçlandırılmak,sürdürülüp sonuçlandırılmak
+kılıcı zorunlu,kılıç zorunlu

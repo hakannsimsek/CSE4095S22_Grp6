@@ -28,3 +28,11 @@ def create_top_fifty(results_path):
                     top_ten_f.write("{} {}\n".format(w1, w2))
                     count += 1
     top_ten_f.close()
+
+def detectStopWord(w1,w2):
+    tagged_w1 = tag_word(w1)
+    tagged_w2 = tag_word(w2)
+    if len(w1) > 1 and len(
+            w2) > 1 and "zarf" not in tagged_w1 and "zarf" not in tagged_w2 and "bağlaç" not in tagged_w1 and "bağlaç" not in tagged_w2 and not "GçDi" in tagged_w1 and not "GçDi" in tagged_w2 and "EfKŞrt" not in tagged_w1 and "EfKŞrt" not in tagged_w2 and "HeTyn" not in tagged_w1 and not "HeVas" in tagged_w1 and "HeTyn" not in tagged_w2 and not "HeVas" in tagged_w2 and "Gkz" not in tagged_w1 and "Gkz" not in tagged_w2 and "Fs" not in tagged_w2 and "EfGz" not in tagged_w1 and "EfGz" not in tagged_w2 and tagged_w1!="" and tagged_w2!="" :
+        return True
+    return False

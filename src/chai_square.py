@@ -26,3 +26,23 @@ def get_top_thousand_for_chai_square(word_map, number_of_tokens_in_corpus):
                     chai_square_list.append([w1, w2, chai_square_value])
     chai_square_list.sort(key=lambda x: x[2], reverse=True)
     return chai_square_list[:1000]
+
+def experimental_get_top_thousand_for_chai_square(word_map, number_of_tokens_in_corpus):
+    chai_square_list = []
+    list_of_dict_values = list(word_map.items())
+    for gramStruct in list_of_dict_values:
+        for i in range(-1, 2):
+            adjacents = gramStruct[1][i]
+            if i == 0:
+                continue
+            for pair in adjacents:
+                pass
+                ##print("key zero ", key[0])
+        for w2 in word_map:
+            if w1 != w2:
+                frequency_matrix = construct_frequency_matrix_from_word_map(w1, w2, word_map, number_of_tokens_in_corpus)
+                chai_square_value = calculate_chai_square(frequency_matrix, number_of_tokens_in_corpus)
+                if chai_square_value != number_of_tokens_in_corpus and chai_square_value > critical_chai_square_value:
+                    chai_square_list.append([w1, w2, chai_square_value])
+    chai_square_list.sort(key=lambda x: x[2], reverse=True)
+    return chai_square_list[:1000]
