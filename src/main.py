@@ -4,11 +4,12 @@ from gram_creator import get_word_map_for_payloads
 from pmi import print_pmi
 import os
 from extractor import stem_word
+from tagger import create_top_fifty
 
 def traverse_payloads_and_print_top_thousand_for_chai_square(day, payloads):
     word_map, number_of_tokens_in_corpus = get_word_map_for_payloads(payloads)
     if number_of_tokens_in_corpus > 0:
-        top_thousand_for_chai_square = get_top_thousand_for_chai_square(word_map, number_of_tokens_in_corpus)
+        top_thousand_for_chai_square = get_top_thousand_for_chai_square(word_map, number_of_tokens_in_corpus) # [w1, w2, value]
         # Create directory if it doesn't exist
         raw_filename = "chai_square_results/{}.txt".format(day)
         try:
@@ -28,10 +29,12 @@ def traverse_payloads_and_print_top_thousand_for_chai_square(day, payloads):
 def main():
     if not os.path.exists(os.path.dirname("/chai_square_results")):
         os.makedirs(os.path.dirname("/chai_square_results"))
-    for day in range(1, 31):
+    for day in range(20, 31):
         payloads = Extractor.read_data_by_day_and_get_payloads(day=str(day).zfill(2))
+        print("Number of payloads: {}".format(len(payloads)))
         print("Day {}".format(day))
         traverse_payloads_and_print_top_thousand_for_chai_square(day, payloads)
+    create_top_fifty("chai_square_results")
     # payloads = Extractor.read_some_data_and_get_payloads()
     # word_map, number_of_tokens_in_corpus = get_word_map_for_payloads(payloads)
     # print_pmi(word_map, number_of_tokens_in_corpus)
