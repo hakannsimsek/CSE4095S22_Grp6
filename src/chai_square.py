@@ -15,7 +15,7 @@ def construct_frequency_matrix_from_word_map(w1, w2, word_map, number_of_tokens_
     frequency_matrix = [[compound_word_count, w2_count - compound_word_count],[w1_count - compound_word_count,number_of_tokens_in_corpus + 2 * compound_word_count - w1_count - w2_count]]
     return frequency_matrix
 
-def get_top_ten_for_chai_square(word_map, number_of_tokens_in_corpus):
+def get_top_thousand_for_chai_square(word_map, number_of_tokens_in_corpus):
     chai_square_list = []
     for w1 in word_map:
         for w2 in word_map:
@@ -25,4 +25,4 @@ def get_top_ten_for_chai_square(word_map, number_of_tokens_in_corpus):
                 if chai_square_value != number_of_tokens_in_corpus and chai_square_value > critical_chai_square_value:
                     chai_square_list.append([w1, w2, chai_square_value])
     chai_square_list.sort(key=lambda x: x[2], reverse=True)
-    return chai_square_list[:10]
+    return chai_square_list[:1000]

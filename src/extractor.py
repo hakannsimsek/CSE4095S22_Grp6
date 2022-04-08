@@ -2,6 +2,8 @@ from os import listdir
 from os.path import isfile, join
 import json
 import re
+from snowballstemmer import TurkishStemmer
+turkStem = TurkishStemmer()
 
 class Extractor:
     def __new__(cls):
@@ -37,7 +39,17 @@ class Extractor:
             data = Extractor.read_json_file(join(path, jsonFileName))
             if data['Mahkeme Günü'] == day:
                 payloads.append(Extractor.get_payload(data))
-        return payloads 
+        return payloads
+
+    @staticmethod
+    def read_data_by_day_and_get_payloads_day_map(path='data'):
+        jsonFileNames = [f for f in listdir(path) if isfile(join(path, f))]
+        payloads_day_map = {}
+        for jsonFileName in jsonFileNames:
+            data = Extractor.read_json_file(join(path, jsonFileName))
+            day = data['Mahkeme Günü']
+            payloads_day_map[day] = payloads_day_map.get(day, []) + [Extractor.get_payload(data)]
+        return payloads_day_map
 
     @staticmethod
     def read_json_file(filename):
@@ -58,3 +70,8 @@ class Extractor:
     def getPlainTextFromPayloads(payloads):
         flatPayload = [item for sublist in payloads for item in sublist]
         return ' '.join(flatPayload)
+
+
+
+def stem_word(word):
+    return turkStem.stemWord(word)

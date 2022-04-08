@@ -21,17 +21,12 @@ def traverse_payloads_and_print_top_thousand_for_chai_square(day, payloads):
             w1, w2 = top_thousand_for_chai_square[i][0], top_thousand_for_chai_square[i][1]
             raw_f.write("{} {},{} {}\n".format(w1, w2, stem_word(w1), stem_word(w2)))
         print("Day {} is written in {}".format(day, raw_filename))
-        raw_f.close()
         return
     print('No data for this day')
 
 def main():
-    if not os.path.exists(os.path.dirname("/chai_square_results")):
-        os.makedirs(os.path.dirname("/chai_square_results"))
-    for day in range(1, 31):
-        payloads = Extractor.read_data_by_day_and_get_payloads(day=str(day).zfill(2))
-        print("Day {}".format(day))
-        traverse_payloads_and_print_top_thousand_for_chai_square(day, payloads)
+    payloads = Extractor.read_data_by_day_and_get_payloads(day=str(11).zfill(2))
+    print(payloads)
     # payloads = Extractor.read_some_data_and_get_payloads()
     # word_map, number_of_tokens_in_corpus = get_word_map_for_payloads(payloads)
     # print_pmi(word_map, number_of_tokens_in_corpus)

@@ -1,126 +1,10 @@
-import spacy
-
 import math
-
-# for bigrams
-from nltk import bigrams
-
-
-# In[18]:
-
-
-spacy.cli.download("en_core_web_sm")
-
-
-# In[19]:
-
-
-model = spacy.load('en_core_web_sm')
-
-
-# In[24]:
-
-
-def load_corpus():
-    with open('deneme.txt') as text_file:
-        text = text_file.read()
-
-        return text
-
-doc = model(load_corpus())
-
-
-# In[31]:
-
-
-# count the tokens in the doc
-n_tokens = len(doc)
-print(f"Number of tokens in the corpus: {n_tokens}\n")
-# output
-
-
-# In[32]:
-
-
-def generate_bigrams(doc):
-    token_list = [str(tok) for tok in doc]
-
-    bgs = bigrams(token_list)
-    return [str(bg) for bg in bgs]
-
-
-bgs = generate_bigrams(doc=doc)
-
-
-# In[36]:
-
-
-def count_word_frequency(word, doc):
-    freq = 0
-    for tok in doc:
-        if tok.text == word:
-            freq = freq + 1
-
-    return freq
-
-
-n_sunflower = count_word_frequency(word='sunflower', doc=doc)
-n_seed = count_word_frequency(word='seed', doc=doc)
-
-
-def count_bigram_frequency(k, bigrams):
-    freq = 0
-    for bg in bigrams:
-        if bg == k:
-            freq = freq + 1
-    return freq
-
-
-n_sunflower_seed = count_bigram_frequency(
-    k="('sair', 'temyiz')", bigrams=bgs)
-
-print(
-    f"sair = {n_sunflower}\ntemyiz = {n_seed}\nsair temyiz = {n_sunflower_seed}\n")
-
-
-# In[39]:
-
-
-def probability(x, n):
-    return x / n
-
-
-def pmi(P_x, P_y, P_xy):
-    return math.log2(P_xy / (P_x * P_y))
-p_sunflower = probability(n_sunflower, n_tokens)
-p_seed = probability(n_seed, n_tokens)
-p_sunflower_seed = probability(n_sunflower_seed, len(bgs))
-
-r = pmi(p_sunflower, p_seed, p_sunflower_seed)
-
-print(f"pmi for sair temyiz = {r}")
-# output
-
-
-# In[46]:
-
-
-import spacy
-import math
-
-from nltk import bigrams
-from tabulate import tabulate
 
 
 class ColPMI:
-    def __init__(self):
-        self.model = spacy.load('en_core_web_sm')
-        self.doc = self.model(self.__load_corpus())
-        self.n_tokens = len(self.doc)
-        self.bgs = self.__generate_bigrams()
-
-    def __load_corpus(self):
-        return read_data_by_day_and_get_payloads().join(" ")
+    def __init__(self, word_map, number_of_tokens_in_corpus_sum):
+        self.word_map = word_map
+        self.number_of_tokens_in_corpus_sum = number_of_tokens_in_corpus_sum
 
     def __generate_bigrams(self):
         token_list = [str(tok) for tok in self.doc]
@@ -135,11 +19,16 @@ class ColPMI:
                 freq = freq + 1
         return freq
 
-    def __count_bigram_frequency(self, k):
+    def __count_bigram_frequency(self, x, y):
         freq = 0
-        for bg in self.bgs:
+        qwe = self.word_map[x][1]
+        if y in self.word_map[x][1]:
+            freq += self.word_map[x][1][y]
+        if y in self.word_map[x][-1]:
+            freq += self.word_map[x][-1][y]
+        """for bg in self.bgs:
             if bg == k:
-                freq = freq + 1
+                freq = freq + 1"""
         return freq
 
     def __probability(self, x, n):
@@ -153,30 +42,50 @@ class ColPMI:
 
     def PMI(self, x, y):
         bg = f"('{x}', '{y}')"
-
         # frequency
-        n_x = self.__count_word_frequency(word=x)
-        n_y = self.__count_word_frequency(word=y)
-        n_bg = self.__count_bigram_frequency(k=bg)
+        n_x = self.word_map[x][0]
+        if y not in self.word_map:
+            return
+        n_y = self.word_map[y][0]
+
+        n_bg = self.__count_bigram_frequency(x,y)
 
         # probability
-        p_x = self.__probability(n_x, self.n_tokens)
-        p_y = self.__probability(n_y, self.n_tokens)
-        p_bg = self.__probability(n_bg, len(self.bgs))
+        uzunluk = self.number_of_tokens_in_corpus_sum
+        xuzunluk = self.word_map[x][0][x]
+        yuzunuluk = self.word_map[y][0][y]
+        p_x = xuzunluk/uzunluk
+        p_y = yuzunuluk/uzunluk
+        p_bg = n_bg / uzunluk #tüm bigramların sayısı (tüm kelimeler sayısı asdsadsadsa -1)
 
         # pmi
         pmi = self.__pmi(p_x, p_y, p_bg)
 
-        return [x, y, n_x, n_y, n_bg, p_x, p_y, p_bg, pmi]
-col_pmi = ColPMI()
-results = []
+        #return [x, y, n_x, n_y, n_bg, p_x, p_y, p_bg, pmi]
+        return pmi
 
-results.append(col_pmi.PMI('davacı', 'vekili'))
-results.append(col_pmi.PMI('davacı', 'adına'))
-results.append(col_pmi.PMI('davacı', 'tarafından'))
-results.append(col_pmi.PMI('sair', 'temyiz'))
+def print_pmi(word_map, number_of_tokens_in_corpus):
+    col_pmi = ColPMI(word_map, number_of_tokens_in_corpus)
+    results = []
 
+    list_of_dict_values = list(word_map.items())
+    max = 0
+    kelime = ""
+    pair = ""
+    for key in list_of_dict_values:
+            i = 1
+            # print("here : " , i, key[0], key[1][i])
+            # if key[0] == "hem":
+            adjacents = key[1][i]
+            if i == 0:
+                continue
+            # if key[0] == "davacı":
+            for pair in adjacents:
+                print("key zero ", key[0],pair)
+                value = col_pmi.PMI(key[0], pair)
+                if value is not None and max < value:
+                    max = value
+                    kelime = key[0]
+                    pair = pair
 
-print(tabulate(results, headers=[
-      'x', 'y', 'C(x)', 'C(y)', 'C(x, y)', 'P(x)', 'P(y)', 'P(x, y)', 'PMI'], tablefmt='orgtbl'))
-
+    print("sonuc ", kelime , pair)
