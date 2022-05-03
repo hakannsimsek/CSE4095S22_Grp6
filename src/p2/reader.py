@@ -25,7 +25,7 @@ class Reader:
     
     @staticmethod
     def read_all_data_and_get_crime_map_and_docs_and_doc_crime_list(path='data'):
-        jsonFileNames = [ str(i) + '.json' for i in range(1, 1000) ]
+        jsonFileNames = [ str(i) + '.json' for i in range(1, 27000) ]
         crimeCorpusMap = {}
         doc_crime_list = []
         docs = []

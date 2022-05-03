@@ -13,7 +13,7 @@ corpus = [
 ]
 
 def get_count_vm_and_features(docs):
-    vectorizer = CountVectorizer()
+    vectorizer = CountVectorizer(binary=True, max_features=5000)
     count_vm = vectorizer.fit_transform(docs)
     return count_vm, vectorizer.get_feature_names_out()
 
@@ -81,8 +81,19 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 
 # SVM Part Start
 # Works so damn slow and that's why: https://stackoverflow.com/questions/40077432/why-is-scikit-learn-svm-svc-extremely-slow
-print('Initiating Support Vector Machine Algorithm...')
-clf = svm.SVC(kernel='linear', C=1).fit(X_train, y_train)
-print(clf.score(X_test, y_test))
+# print('Initiating Support Vector Machine Algorithm...')
+# linearSVCLF = svm.LinearSVC(max_iter=1500).fit(X_train, y_train)
+#polySVCLF = svm.SVC(kernel='poly', C=1, max_iter=1000).fit(X_train, y_train)
+# print('Linear SVC Score', linearSVCLF.score(X_test, y_test))
+#print('Polynomial SVC Score', polySVCLF.score(X_test, y_test))
 # SVM Part End
 
+# Multinomial Naive Bayes Part Start
+print('Initiating Multinomial Naive Bayes Algorithm...')
+from sklearn.naive_bayes import MultinomialNB
+clf = MultinomialNB(alpha=1)
+clf.fit(X_train, y_train)
+
+print('Multinomial Naive Bayes Score', clf.score(X_test, y_test))
+
+# Multinomial Naive Bayes Part End
