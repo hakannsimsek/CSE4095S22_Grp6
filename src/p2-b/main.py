@@ -1,9 +1,11 @@
 from ntpath import join
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 import pandas as pd
+from sklearn.metrics import classification_report, recall_score
 from sklearn.model_selection import train_test_split
 from reader import Reader
 from sklearn import datasets, svm
+import LogisticR
 
 corpus = [
     'This is the first document.',
@@ -58,34 +60,35 @@ def get_optimized_doc_crime_list(doc_crime_list, top_n_crime_names):
     optimized_doc_crime_list = []
     for crimeName in doc_crime_list:
         if crimeName not in top_n_crime_names:
-            optimized_doc_crime_list.append(crimeName)
-        else:
             optimized_doc_crime_list.append(outlier_key)
+        else:
+            optimized_doc_crime_list.append(crimeName)
     return optimized_doc_crime_list
 
 
 # This area is common DO NOT change it
 print('Obtaining necessary data values...')
 crime_map, docs, doc_crime_list = Reader.read_all_data_and_get_crime_map_and_docs_and_doc_crime_list()
-top_n_crime_names = get_top_n_crime_names(crime_map)
+top_n_crime_names = get_top_n_crime_names(crime_map, n=100)
 optimized_crime_map = get_optimized_crime_map(crime_map, top_n_crime_names)
 optimized_doc_crime_list = get_optimized_doc_crime_list(doc_crime_list, top_n_crime_names=top_n_crime_names)
 print_crime_map_by(optimized_crime_map, by='count')
 tfidf_vm, tfidf_features = get_tfidf_vm_and_features(docs)
-# print_vectorizer_result('TF-IDF', tfidf_vm, tfidf_features)
+print_vectorizer_result('TF-IDF', tfidf_vm, tfidf_features)
 X = tfidf_vm.toarray()
 y = construct_y_by_doc_crime_list(optimized_doc_crime_list)
 print('Splitting data for training and testing...')
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
 # End of the common area
 
 # SVM Part Start
-# Works so damn slow and that's why: https://stackoverflow.com/questions/40077432/why-is-scikit-learn-svm-svc-extremely-slow
-# print('Initiating Support Vector Machine Algorithm...')
-# linearSVCLF = svm.LinearSVC(max_iter=1500).fit(X_train, y_train)
-#polySVCLF = svm.SVC(kernel='poly', C=1, max_iter=1000).fit(X_train, y_train)
-# print('Linear SVC Score', linearSVCLF.score(X_test, y_test))
-#print('Polynomial SVC Score', polySVCLF.score(X_test, y_test))
+# Works so slow and that's why: https://stackoverflow.com/questions/40077432/why-is-scikit-learn-svm-svc-extremely-slow
+print('Initiating Support Vector Machine Algorithm...')
+linearSVCLF = svm.LinearSVC(max_iter=1500).fit(X_train, y_train)
+print('Linear SVC Score', linearSVCLF.score(X_test, y_test))
+# print('Linear SVC Report', classification_report(y_test, linearSVCLF.predict(X_test)))
+# polySVCLF = svm.SVC(kernel='poly', C=1, max_iter=1000).fit(X_train, y_train)
+# print('Polynomial SVC Score', polySVCLF.score(X_test, y_test))
 # SVM Part End
 
 # Multinomial Naive Bayes Part Start
@@ -93,7 +96,16 @@ print('Initiating Multinomial Naive Bayes Algorithm...')
 from sklearn.naive_bayes import MultinomialNB
 clf = MultinomialNB(alpha=1)
 clf.fit(X_train, y_train)
-
 print('Multinomial Naive Bayes Score', clf.score(X_test, y_test))
-
 # Multinomial Naive Bayes Part End
+
+# y_predicted = clf.predict(X_test)
+# cr = classification_report(y_test, y_predicted)
+# print(cr)
+
+## Logistic Regression
+# crimeMap,crimeList = Reader.read_all_data_and_get_crime_and_corpus()
+# df = pd.DataFrame(crimeList)
+# feature_rep='binary'
+# top=3
+# LogisticR.LogReg(df,feature_rep,top)

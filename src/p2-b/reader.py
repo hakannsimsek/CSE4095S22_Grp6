@@ -24,20 +24,44 @@ class Reader:
         return payloads
     
     @staticmethod
+    def split_crime_then_fetch_first_one(crime):
+        return crime.split(',')[0]
+
+    @staticmethod
+    def read_all_data_and_get_crime_and_corpus(path='data'):
+        jsonFileNames = [str(i) + '.json' for i in range(1, 1000)]
+        crimeCorpusMap = {}
+        crimeList = []
+        for jsonFileName in jsonFileNames:
+            name = join(path, jsonFileName)
+            content = Reader.read_json_file(name)
+            crimeList.append(content)
+            crimeName = content['Suç']
+            if crimeName == '':
+                if 'undefined' not in crimeCorpusMap:
+                    crimeCorpusMap['undefined'] = 0
+                crimeName = 'undefined'
+            if content['Suç'] not in crimeCorpusMap:
+                crimeCorpusMap[content['Suç']] = 0
+            # crimeCorpusMap[content['Suç']] = crimeCorpusMap[content['Suç']].append(content['ictihat'])
+            crimeCorpusMap[crimeName] = crimeCorpusMap[crimeName] + 1
+        return crimeCorpusMap, 
+    
+    @staticmethod
     def read_all_data_and_get_crime_map_and_docs_and_doc_crime_list(path='data'):
-        jsonFileNames = [ str(i) + '.json' for i in range(1, 27000) ]
+        jsonFileNames = [ str(i) + '.json' for i in range(1, 10000) ]
         crimeCorpusMap = {}
         doc_crime_list = []
         docs = []
         for jsonFileName in jsonFileNames:
             content = Reader.read_json_file(join(path, jsonFileName))
-            crimeName = content['Suç']
+            crimeName = Reader.split_crime_then_fetch_first_one(content['Suç'])
             if crimeName == '':
                 if 'undefined' not in crimeCorpusMap:
                     crimeCorpusMap['undefined'] = { 'corpus': [], 'count': 0 }
                 crimeName = 'undefined'
             if crimeName not in crimeCorpusMap:
-                crimeCorpusMap[content['Suç']] = { 'corpus': [], 'count': 0 }
+                crimeCorpusMap[crimeName] = { 'corpus': [], 'count': 0 }
             doc_crime_list.append(crimeName)
             crimeCorpusMap[crimeName]['corpus'].append(content['ictihat'])
             crimeCorpusMap[crimeName]

@@ -26,14 +26,11 @@ def traverse_payloads_and_print_top_thousand_for_chai_square(day, payloads):
     print('No data for this day')
 
 def main():
-    # if not os.path.exists(os.path.dirname("/chai_square_results")):
-    #     os.makedirs(os.path.dirname("/chai_square_results"))
-    # for day in range(20, 31):
-    #     payloads = Extractor.read_data_by_day_and_get_payloads(day=str(day).zfill(2))
-    #     print("Number of payloads: {}".format(len(payloads)))
-    #     print("Day {}".format(day))
-    #     traverse_payloads_and_print_top_thousand_for_chai_square(day, payloads)
-    create_top_fifty("chai_square_results")
+    day = 29
+    payloads = Extractor.read_data_by_day_and_get_payloads(day=str(day).zfill(2))
+    print("Number of payloads: {}".format(len(payloads)))
+    print("Day {}".format(day))
+    traverse_payloads_and_print_top_thousand_for_chai_square(day, payloads)
     # payloads = Extractor.read_some_data_and_get_payloads()
     # word_map, number_of_tokens_in_corpus = get_word_map_for_payloads(payloads)
     # print_pmi(word_map, number_of_tokens_in_corpus)
