@@ -7,6 +7,8 @@ from reader import Reader
 from sklearn import datasets, svm
 import LogisticR
 
+from src.p2 import LogisticR
+
 corpus = [
     'This is the first document.',
     'This document is the second document.',
@@ -66,7 +68,7 @@ def get_optimized_doc_crime_list(doc_crime_list, top_n_crime_names):
     return optimized_doc_crime_list
 
 
-# This area is common DO NOT change it
+"""# This area is common DO NOT change it
 print('Obtaining necessary data values...')
 crime_map, docs, doc_crime_list = Reader.read_all_data_and_get_crime_map_and_docs_and_doc_crime_list()
 top_n_crime_names = get_top_n_crime_names(crime_map, n=100)
@@ -109,3 +111,14 @@ print('Multinomial Naive Bayes Score', clf.score(X_test, y_test))
 # feature_rep='binary'
 # top=3
 # LogisticR.LogReg(df,feature_rep,top)
+
+print('Multinomial Naive Bayes Score', clf.score(X_test, y_test))"""
+
+# Multinomial Naive Bayes Part End
+
+## Logistic Regression
+crimeMap,crimeList = Reader.read_all_data_and_get_crime_and_corpus()
+df = pd.DataFrame(crimeList)
+feature_rep='binary'
+top=3
+LogisticR.LogReg(df,feature_rep,top)
