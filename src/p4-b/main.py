@@ -1,4 +1,5 @@
 from ntpath import join
+import os
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 import pandas as pd
 from sklearn.metrics import classification_report, recall_score
@@ -35,18 +36,49 @@ def print_court_map_by(court_map, by='count'):
     for crime in court_map:
         print('{} - {}'.format(crime, court_map[crime][by]))
 
+def split_list(list, portion=0.9):
+    return list[:int(len(list) * portion)], list[int(len(list) * portion):]
+
+def apply_fasttext_label_then_get_result_string(class_name, doc):
+    return '__label__{} {}'.format(class_name, doc)
+
+def create_file_if_not_exist(file_path):
+    if not os.path.exists(file_path):
+        open(file_path, 'w').close()
+
+# Create directory if not exist
+def create_dir_if_not_exist(dir_path):
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
+def prepare_data_for_fasttext(docs, doc_court_list):
+    [docs_train, docs_test] = split_list(docs)
+    [doc_court_list_train, doc_court_list_test] = split_list(doc_court_list)
+    create_dir_if_not_exist('fasttext')
+    create_file_if_not_exist('fasttext/train.txt')
+    create_file_if_not_exist('fasttext/test.txt')
+    with open('fasttext/train.txt', 'w') as f:
+        for doc in docs_train:
+            f.write(apply_fasttext_label_then_get_result_string(doc_court_list_train[docs_train.index(doc)], doc))
+            f.write('\n')
+    with open('fasttext/test.txt', 'w') as f:
+        for doc in docs_test:
+            f.write(apply_fasttext_label_then_get_result_string(doc_court_list_test[docs_test.index(doc)], doc))
+            f.write('\n')
+    print('Fasttext results are ready')
 
 
 # This area is common DO NOT change it
 print('Obtaining necessary data values...')
 court_map, docs, doc_court_list = Reader.read_all_data_and_get_court_map_and_docs_and_doc_court_list()
-print_court_map_by(court_map, by='count')
-tfidf_vm, tfidf_features = get_tfidf_vm_and_features(docs)
+prepare_data_for_fasttext(docs, doc_court_list)
+# print_court_map_by(court_map, by='count')
+# tfidf_vm, tfidf_features = get_tfidf_vm_and_features(docs)
 # print_vectorizer_result('TF-IDF', tfidf_vm, tfidf_features)
-X = tfidf_vm.toarray()
-y = construct_y_by_doc_court_list(doc_court_list)
-print('Splitting data for training and testing...')
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
+# X = tfidf_vm.toarray()
+# y = construct_y_by_doc_court_list(doc_court_list)
+# print('Splitting data for training and testing...')
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
 # End of the common area
 
 # SVM Part Start

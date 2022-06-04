@@ -79,7 +79,7 @@ class Reader:
 
     @staticmethod
     def read_all_data_and_get_court_map_and_docs_and_doc_court_list(path='data'):
-        jsonFileNames = [ str(i) + '.json' for i in range(1, number_of_docs) ]
+        jsonFileNames = [ str(i) + '.json' for i in range(1, 100) ]
         court_corpus_map = {
             "Asliye Ceza Mahkemesi": { 'corpus': [], 'count': 0 },
             "Ağır Ceza Mahkemesi": { 'corpus': [], 'count': 0 },
