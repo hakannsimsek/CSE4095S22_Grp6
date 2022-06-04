@@ -6,7 +6,10 @@ from sklearn.metrics import classification_report, recall_score
 from sklearn.model_selection import train_test_split
 from reader import Reader
 from sklearn import datasets, svm
+<<<<<<< HEAD
 import fasttext
+=======
+>>>>>>> 2e8e9e6b1ef2f537b9fa566ee3f5aec02dfb1766
 
 corpus = [
     'This is the first document.',
@@ -73,6 +76,7 @@ def prepare_data_for_fasttext(docs, doc_court_list):
 print('Obtaining necessary data values...')
 court_map, docs, doc_court_list = Reader.read_all_data_and_get_court_map_and_docs_and_doc_court_list()
 prepare_data_for_fasttext(docs, doc_court_list)
+<<<<<<< HEAD
 # Training the fastText classifier
 model = fasttext.train_supervised('fasttext/train.txt', wordNgrams = 2)
 # Evaluating performance on the entire test file
@@ -82,6 +86,8 @@ print('Test Result: ', model.test('fasttext/test.txt'))
 
 # Predicting on a single input
 ## model.predict(ds.iloc[2, 0])
+=======
+>>>>>>> 2e8e9e6b1ef2f537b9fa566ee3f5aec02dfb1766
 # print_court_map_by(court_map, by='count')
 # tfidf_vm, tfidf_features = get_tfidf_vm_and_features(docs)
 # print_vectorizer_result('TF-IDF', tfidf_vm, tfidf_features)
