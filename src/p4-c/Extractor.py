@@ -2,6 +2,8 @@ from os import listdir
 from os.path import isfile, join
 import json
 import re
+from random import randint
+
 from snowballstemmer import TurkishStemmer
 
 turkStem = TurkishStemmer()
@@ -18,26 +20,6 @@ class Extractor:
         return re.sub(r'[^\w\s]', '', payload)
 
     @staticmethod
-    def read_all_data_and_get_crime_and_corpus(path='data'):
-        jsonFileNames = [str(i) + '.json' for i in range(1, 1000)]
-        crimeCorpusMap = {}
-        crimeList = []
-        for jsonFileName in jsonFileNames:
-            name = join(path, jsonFileName)
-            content = Extractor.read_json_file(name)
-            crimeList.append(content)
-            crimeName = content['Suç']
-            if crimeName == '':
-                if 'undefined' not in crimeCorpusMap:
-                    crimeCorpusMap['undefined'] = 0
-                crimeName = 'undefined'
-            if content['Suç'] not in crimeCorpusMap:
-                crimeCorpusMap[content['Suç']] = 0
-            # crimeCorpusMap[content['Suç']] = crimeCorpusMap[content['Suç']].append(content['ictihat'])
-            crimeCorpusMap[crimeName] = crimeCorpusMap[crimeName] + 1
-        return crimeCorpusMap, crimeList
-
-    @staticmethod
     def read_all_data_and_get_payloads(path='data'):
         jsonFileNames = [f for f in listdir(path) if isfile(join(path, f))]
         payloads = []
@@ -46,58 +28,39 @@ class Extractor:
         return payloads
 
     @staticmethod
-    def split_crime_then_fetch_first_one(crime):
-        return crime.split(',')[0]
-
-    @staticmethod
-    def read_all_data_and_get_crime_and_corpus(path='data'):
-        jsonFileNames = [str(i) + '.json' for i in range(1, 1000)]
-        crimeCorpusMap = {}
-        crimeList = []
-        for jsonFileName in jsonFileNames:
-            name = join(path, jsonFileName)
-            content = Extractor.read_json_file(name)
-            crimeList.append(content)
-            crimeName = content['Suç']
-            if crimeName == '':
-                if 'undefined' not in crimeCorpusMap:
-                    crimeCorpusMap['undefined'] = 0
-                crimeName = 'undefined'
-            if content['Suç'] not in crimeCorpusMap:
-                crimeCorpusMap[content['Suç']] = 0
-            # crimeCorpusMap[content['Suç']] = crimeCorpusMap[content['Suç']].append(content['ictihat'])
-            crimeCorpusMap[crimeName] = crimeCorpusMap[crimeName] + 1
-        return crimeCorpusMap, crimeList
-
-    @staticmethod
-    def read_all_data_and_get_crime_map_and_docs_and_doc_crime_list(path='data'):
-        jsonFileNames = [str(i) + '.json' for i in range(1, 10000)]
-        crimeCorpusMap = {}
-        doc_crime_list = []
-        docs = []
-        for jsonFileName in jsonFileNames:
-            content = Extractor.read_json_file(join(path, jsonFileName))
-            crimeName = Extractor.split_crime_then_fetch_first_one(content['Suç'])
-            if crimeName == '':
-                if 'undefined' not in crimeCorpusMap:
-                    crimeCorpusMap['undefined'] = {'corpus': [], 'count': 0}
-                crimeName = 'undefined'
-            if crimeName not in crimeCorpusMap:
-                crimeCorpusMap[crimeName] = {'corpus': [], 'count': 0}
-            doc_crime_list.append(crimeName)
-            crimeCorpusMap[crimeName]['corpus'].append(content['ictihat'])
-            crimeCorpusMap[crimeName]
-            docs.append(content['ictihat'])
-            crimeCorpusMap[crimeName]['count'] = crimeCorpusMap[crimeName]['count'] + 1
-        return crimeCorpusMap, docs, doc_crime_list
-
-    @staticmethod
-    def read_some_data_and_get_payloads(path='data', number_of_files=100):
-        jsonFileNames = [f for f in listdir(path) if isfile(join(path, f))]
+    def read_some_data_and_get_payloads_and_crimes(path='data', number_of_files=100):
+        # jsonFileNames = [f for f in listdir(path) if isfile(join(path, f))]
+        crime_repetition_list = Extractor.get_crime_repetition_list(path=path, number_of_files=number_of_files)
+        jsonFileNames = [str(i) + '.json' for i in range(1, number_of_files)]
         payloads = []
+        crimes = []
         for jsonFileName in jsonFileNames[:number_of_files]:
-            payloads.append(Extractor.read_json_file_and_get_payload(join(path, jsonFileName)))
-        return payloads
+            payload, crime = Extractor.read_json_file_and_get_payload_and_crime(join(path, jsonFileName))
+            if crime_repetition_list[crime] > 5:
+                payloads.append(payload)
+                crimes.append(crime)
+        return payloads, crimes
+
+    @staticmethod
+    def read_some_data_and_get_crimes(path='data', number_of_files=100):
+        # jsonFileNames = [f for f in listdir(path) if isfile(join(path, f))]
+        jsonFileNames = [str(i) + '.json' for i in range(1, number_of_files)]
+        crimes = []
+        for jsonFileName in jsonFileNames[:number_of_files]:
+            crimes.append(Extractor.read_json_file_and_get_crime(join(path, jsonFileName)))
+        return crimes
+
+    @staticmethod
+    def get_crime_repetition_list(path='data', number_of_files=100):
+        jsonFileNames = [str(i) + '.json' for i in range(1, number_of_files)]
+        crime_repetition_map = {}
+        for jsonFileName in jsonFileNames[:number_of_files]:
+            crime = Extractor.read_json_file_and_get_crime(join(path, jsonFileName))
+            if crime in crime_repetition_map:
+                crime_repetition_map[crime] = crime_repetition_map[crime] + 1
+            else:
+                crime_repetition_map[crime] = 1
+        return crime_repetition_map
 
     @staticmethod
     def read_data_by_day_and_get_payloads(path='data', day='04'):
@@ -131,8 +94,25 @@ class Extractor:
         return [ele for ele in payload if ele.strip()]
 
     @staticmethod
-    def read_json_file_and_get_payload(file_name):
-        return Extractor.get_payload(Extractor.read_json_file(file_name))
+    def get_payloadd(data):
+        payload = (data['ictihat'].lower())
+        return payload
+
+    @staticmethod
+    def get_crime(data):
+        payload = ""
+        if data['Suç'] != "":
+            payload = (data['Suç'].lower().strip()).split(',')[0]
+        return payload
+
+    @staticmethod
+    def read_json_file_and_get_payload_and_crime(file_name):
+        content = Extractor.read_json_file(file_name)
+        return Extractor.get_payloadd(content), Extractor.get_crime(content)
+
+    @staticmethod
+    def read_json_file_and_get_crime(file_name):
+        return Extractor.get_crime(Extractor.read_json_file(file_name))
 
     @staticmethod
     def getPlainTextFromPayloads(payloads):
