@@ -52,9 +52,14 @@ def create_dir_if_not_exist(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
+def join_with_underscore(string):
+    return '_'.join(string.split(' '))
+
 def prepare_data_for_fasttext(docs, doc_court_list):
     [docs_train, docs_test] = split_list(docs)
     [doc_court_list_train, doc_court_list_test] = split_list(doc_court_list)
+    doc_court_list_train = list(map(join_with_underscore, doc_court_list_train))
+    doc_court_list_test = list(map(join_with_underscore, doc_court_list_test))
     create_dir_if_not_exist('fasttext')
     create_file_if_not_exist('fasttext/train.txt')
     create_file_if_not_exist('fasttext/test.txt')
